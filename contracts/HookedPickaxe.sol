@@ -17,18 +17,23 @@ contract HookedPickaxe is ERC721, ERC721Burnable, AccessControl {
     mapping(uint256 => uint256) public adventures;
     mapping(uint256 => uint256) public level;
 
+    event DailyAdventure(uint256 indexed to, uint256 value);
+    event LevelUp(uint256 indexed to, uint256 value);
+
     constructor() ERC721("Hooked Pickaxe", "HPA") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function dailyAdventure(uint256 tokenId) external onlyRole(GAMER_ROLE) {
-        _requireMinted(tokenId);
+    function dailyAdventure(uint256 tokenId) external {
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not token owner nor approved");
         adventures[tokenId] += 1;
+        emit DailyAdventure(tokenId, adventures[tokenId]);
     }
 
     function levelUp(uint256 tokenId) external onlyRole(GAMER_ROLE) {
         _requireMinted(tokenId);
         level[tokenId] += 1;
+        emit LevelUp(tokenId, level[tokenId]);
     }
 
     function mint(address to) external onlyRole(GAMER_ROLE) {
@@ -41,9 +46,9 @@ contract HookedPickaxe is ERC721, ERC721Burnable, AccessControl {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         string[5] memory parts;
-        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 200 200"><style>.base { fill: white; font-family: serif; font-size: 18px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="50" class="base">';
+        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 200 200"><style>.base { fill: white; font-family: serif; font-size: 18px; }</style><rect width="100%" height="100%" fill="black" /><text x="30" y="80" class="base">';
         parts[1] = string(abi.encodePacked("Level", " ", Strings.toString(level[tokenId])));
-        parts[2] = '</text><text x="10" y="80" class="base">';
+        parts[2] = '</text><text x="30" y="110" class="base">';
         parts[3] = string(abi.encodePacked("Adventures", " ", Strings.toString(adventures[tokenId])));
         parts[4] = '</text></svg>';
         
