@@ -17,7 +17,6 @@ contract HookedPickaxe is ERC721, ERC721Burnable, AccessControl {
     mapping(uint256 => uint256) public adventures;
     mapping(uint256 => uint256) public level;
 
-    event DailyAdventure(uint256 indexed to, uint256 value);
     event LevelUp(uint256 indexed to, uint256 value);
 
     constructor() ERC721("Hooked Pickaxe", "HPA") {
@@ -27,7 +26,6 @@ contract HookedPickaxe is ERC721, ERC721Burnable, AccessControl {
     function dailyAdventure(uint256 tokenId) external {
         require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not token owner nor approved");
         adventures[tokenId] += 1;
-        emit DailyAdventure(tokenId, adventures[tokenId]);
     }
 
     function levelUp(uint256 tokenId) external onlyRole(GAMER_ROLE) {
