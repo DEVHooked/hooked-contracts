@@ -23,7 +23,7 @@ contract HookedPickaxe is ERC721, ERC721Burnable, AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function dailyAdventure(uint256 tokenId) external {
+    function adventure(uint256 tokenId) external {
         require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not token owner nor approved");
         adventures[tokenId] += 1;
     }
