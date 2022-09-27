@@ -41,7 +41,7 @@ contract uHGTSwapRouter is Ownable{
         _uHGT = IuHGT(uHGT);
         _HookedReceivingAddress = hookedReceivingAddress;
 
-        //_pairAddress and the address of uHGTSwapRouter will be added to the identified of the hHGToken.
+        //_pairAddress and the address of uHGTSwapRouter will be added to the identified of the uHGToken.
         IPancakeFactory factory = IPancakeFactory(_pancakeRouter.factory());
         _pairAddress = factory.createPair(uHGT,BUSD);
     }
