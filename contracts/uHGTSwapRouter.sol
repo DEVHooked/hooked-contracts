@@ -30,24 +30,24 @@ contract uHGTSwapRouter is Ownable{
     IuHGT public _uHGT;
     IERC20 public _BUSD;
     address public _pairAddress;
-    address public _HookedReceivingAddress;
+    address public _BUSDReceivingAddress;
 
     event Swap(uint amountIn, uint amountOutMin, address[] path, address to, uint deadline);
     event TransferToDigitalWallet(address indexed to, uint amount, uint time);
 
-    constructor(address uHGT,address hookedReceivingAddress) {
+    constructor(address uHGT,address BUSDReceivingAddress) {
         _pancakeRouter = IPancakeRouter(PANCAKE_ROUTER);
         _BUSD = IERC20(BUSD);
         _uHGT = IuHGT(uHGT);
-        _HookedReceivingAddress = hookedReceivingAddress;
+        _BUSDReceivingAddress = BUSDReceivingAddress;
 
         //_pairAddress and the address of uHGTSwapRouter will be added to the identified of the uHGToken.
         IPancakeFactory factory = IPancakeFactory(_pancakeRouter.factory());
         _pairAddress = factory.createPair(uHGT,BUSD);
     }
 
-    function setHookedReceivingAddress(address hookedReceivingAddress) public onlyOwner {
-        _HookedReceivingAddress = hookedReceivingAddress;
+    function setBUSDReceivingAddress(address BUSDReceivingAddress) public onlyOwner {
+        _BUSDReceivingAddress = BUSDReceivingAddress;
     }
 
     function swap(uint256 amountIn) public returns(uint256) {
@@ -65,7 +65,7 @@ contract uHGTSwapRouter is Ownable{
 
     function swapAndWithdrawToDigitalWallet(uint256 amountIn) public {
         uint256 amountOut = swap(amountIn);
-        _BUSD.transferFrom(msg.sender, _HookedReceivingAddress, amountOut);
+        _BUSD.transferFrom(msg.sender, _BUSDReceivingAddress, amountOut);
         emit TransferToDigitalWallet(msg.sender, amountOut, block.timestamp);
     }
 
