@@ -30,6 +30,7 @@ contract uHGToken is ERC20, ERC20Burnable, AccessControl {
     }
 
     function setSigner(address signer) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(signer != address(0),"Invalid signer");
         _signer = signer;
     }
 

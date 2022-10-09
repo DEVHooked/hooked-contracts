@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface IuHGT is IERC20{
     function claim(address to, bytes calldata signature, uint256 amount) external;
@@ -24,16 +25,20 @@ interface IPancakeFactory {
 }
 
 contract uHGTSwapRouter is Ownable{
+    using SafeERC20 for IERC20;
+    using SafeERC20 for IuHGT;
+
     address constant PANCAKE_ROUTER = 0x10ED43C718714eb63d5aA57B78B54704E256024E;
     address constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
     IPancakeRouter public _pancakeRouter;
     IuHGT public _uHGT;
     IERC20 public _BUSD;
-    address public _pairAddress;
+    address immutable public _pairAddress;
     address public _BUSDReceivingAddress;
 
     event Swap(uint amountIn, uint amountOutMin, address[] path, address to, uint deadline);
     event TransferToDigitalWallet(address indexed to, uint amount, uint time);
+    event SetBUSDReceivingAddress(address BUSDReceivingAddress);
 
     constructor(address uHGT,address BUSDReceivingAddress) {
         _pancakeRouter = IPancakeRouter(PANCAKE_ROUTER);
@@ -48,11 +53,12 @@ contract uHGTSwapRouter is Ownable{
 
     function setBUSDReceivingAddress(address BUSDReceivingAddress) public onlyOwner {
         _BUSDReceivingAddress = BUSDReceivingAddress;
+        emit SetBUSDReceivingAddress(BUSDReceivingAddress);
     }
 
     function swap(uint256 amountIn) public returns(uint256) {
         require(amountIn > 0, "Amount must bigger than 0");
-        _uHGT.transferFrom(msg.sender, address(this), amountIn);
+        _uHGT.safeTransferFrom(msg.sender, address(this), amountIn);
         _uHGT.approve(address(_pancakeRouter), amountIn);
         address[] memory path = new address[](2);
         path[0] = address(_uHGT);
@@ -65,7 +71,7 @@ contract uHGTSwapRouter is Ownable{
 
     function swapAndWithdrawToDigitalWallet(uint256 amountIn) public {
         uint256 amountOut = swap(amountIn);
-        _BUSD.transferFrom(msg.sender, _BUSDReceivingAddress, amountOut);
+        _BUSD.safeTransferFrom(msg.sender, _BUSDReceivingAddress, amountOut);
         emit TransferToDigitalWallet(msg.sender, amountOut, block.timestamp);
     }
 
